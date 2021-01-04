@@ -1,26 +1,53 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import socketIOClient from "socket.io-client";
 import Board from './Board'
+import { SquareValue } from './Board'
+import { testWinner } from './utils'
 const ENDPOINT = "http://127.0.0.1:5000";
 
-type Test = {
-  info: string
+enum Player {
+  X = 'X',
+  O = 'O',
 }
 
-const Game: React.FC = () => {
-  // const [user, setUser] = useState<IUser>({name: 'Jon'});
-  // Usestate in typescript
-  const [data, setData] = useState<Test | string>("")
-  useEffect(() => {
-    console.log('useeffect')
-    const socket = socketIOClient(ENDPOINT);
-    socket.on("test", (info: Test) => {
-      setData(info);
+type GameProps = {
+  roomNumber: string;
+}
+
+const socket: SocketIOClient.Socket = socketIOClient(ENDPOINT)
+const Game: React.FC<GameProps> = () => {
+  const [squares, setSquares] = useState<Array<SquareValue>>(
+    Array(9).fill(null)
+  );
+
+  const [xIsNext, setXIsNext] = useState<Boolean>(true);
+  const [activeUsers, setActiveUsers] = useState<string>('0');
+  const nextPlayer = xIsNext ? Player.X : Player.O;
+  const winner = testWinner(squares);
+  const status = winner ? `Winner: ${winner}` : `Next player: ${nextPlayer}`;
+
+  useEffect((): any => {
+    socket.on("users", (payload: string) => {
+      console.log(payload)
+      setActiveUsers(payload)
     })
+    return (
+      socket.disconnect
+    )
   }, []);
+
+  const handleClick = (i: number) => {
+    if (winner) return;
+    const newSquares = squares.slice();
+    newSquares[i] = nextPlayer;
+    setSquares(newSquares);
+    setXIsNext(!xIsNext);
+  };
   return (
     <div>
-      <Board />
+      <p>{activeUsers}</p>
+      <p style={{ textAlign: 'center' }}>{status}</p>
+      <Board handleClick={handleClick} squares={squares} />
     </div>
   );
 }

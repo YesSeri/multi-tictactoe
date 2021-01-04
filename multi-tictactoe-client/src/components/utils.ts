@@ -19,8 +19,9 @@ const testWinner = (squares: Array<SquareValue>) => {
 	return null;
 };
 
+
 const testDraw = (turn: number): boolean => {
-	return turn === 9
+	return turn === 10
 }
 
 export {testWinner, testDraw}

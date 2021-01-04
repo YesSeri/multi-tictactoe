@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import socketIOClient from 'socket.io-client';
 import Board from './Board';
 import { SquareValue } from './Board';
-import { testWinner } from './utils';
-const ENDPOINT = 'http://127.0.0.1:5000';
+import { testWinner, testDraw } from './utils';
 
 enum Player {
 	X = 'X',
@@ -14,38 +12,21 @@ type GameProps = {
 	roomNumber: string;
 };
 
-type Payload = {
-  description: string
-}
-
-const socket: SocketIOClient.Socket = socketIOClient(ENDPOINT);
 const Game: React.FC<GameProps> = () => {
 	const [squares, setSquares] = useState<Array<SquareValue>>(
 		Array(9).fill(null)
 	);
 
 	const [xIsNext, setXIsNext] = useState<Boolean>(true);
-	const [activeUsers, setActiveUsers] = useState<string>('0');
+	const [turn, setTurn] = useState<number>(1)
 	const nextPlayer = xIsNext ? Player.X : Player.O;
 	const winner = testWinner(squares);
-	const status = winner ? `Winner: ${winner}` : `Next player: ${nextPlayer}`;
-
-	useEffect((): any => {
-
-    
-		socket.on('serverEvent', (data: string) => {
-      setActiveUsers(data);
-    });
-
-		// socket.on('users', (payload: string) => {
-		// 	console.log(payload);
-		// 	setActiveUsers(payload);
-		// });
-		return socket.disconnect;
-	}, []);
+	const isDraw = testDraw(turn)
+	const status = winner ? `Winner: ${winner}` : isDraw ? `It is a draw.` : `Next player: ${nextPlayer}`;
 
 	const handleClick = (i: number) => {
-		if (winner) return;
+		if (winner || squares[i] || isDraw) return;
+		setTurn(turn + 1);
 		const newSquares = squares.slice();
 		newSquares[i] = nextPlayer;
 		setSquares(newSquares);
@@ -53,7 +34,7 @@ const Game: React.FC<GameProps> = () => {
 	};
 	return (
 		<div>
-			<p>{activeUsers}</p>
+			{isDraw || winner ? "Game over" :<div>It is turn {turn} </div>}
 			<p style={{ textAlign: 'center' }}>{status}</p>
 			<Board handleClick={handleClick} squares={squares} />
 		</div>

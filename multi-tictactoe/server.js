@@ -11,12 +11,14 @@ app.get('/', (req, res) => {
 	res.send('Hello World');
 });
 
-const room = 'testRoom';
+const roomName = 'testRoom';
+const roomNumber = 1;
 const message = 'this is a test message'
-const object = {description: 'this is a test object'}
-io.on('connection', function (socket) {
-  socket.join(room);
-  io.sockets.in(room).emit('serverEvent', message);
+const object = { description: 'this is a test object' }
+
+io.on('connection', (socket) => {
+	socket.join(roomName + roomNumber);
+	io.sockets.in(room).emit('serverEvent', message);
 });
 
 httpServer.listen(PORT, () => {

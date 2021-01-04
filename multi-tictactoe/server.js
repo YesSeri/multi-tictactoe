@@ -16,9 +16,14 @@ const roomNumber = 1;
 const message = 'this is a test message'
 const object = { description: 'this is a test object' }
 
+let clients = 0;
 io.on('connection', (socket) => {
-	socket.join(roomName + roomNumber);
-	io.sockets.in(room).emit('serverEvent', message);
+	socket.on('join', (room) => {
+		clients++;
+		console.log('number of clients: ', clients)
+		socket.join(room);
+		console.log('room: ', room)
+  });
 });
 
 httpServer.listen(PORT, () => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Board from './Board';
 import { SquareValue } from './Board';
 import { testWinner, testDraw } from './utils';
@@ -8,11 +8,7 @@ enum Player {
 	O = 'O',
 }
 
-type GameProps = {
-	roomNumber: string;
-};
-
-const Game: React.FC<GameProps> = () => {
+const Game: React.FC = () => {
 	const [squares, setSquares] = useState<Array<SquareValue>>(
 		Array(9).fill(null)
 	);
@@ -34,7 +30,9 @@ const Game: React.FC<GameProps> = () => {
 	};
 	return (
 		<div>
-			{isDraw || winner ? "Game over" :<div>It is turn {turn} </div>}
+			<p style={{ textAlign: 'center' }}>
+				{isDraw || winner ? "Game over" : `It is turn${turn}`}
+			</p>
 			<p style={{ textAlign: 'center' }}>{status}</p>
 			<Board handleClick={handleClick} squares={squares} />
 		</div>

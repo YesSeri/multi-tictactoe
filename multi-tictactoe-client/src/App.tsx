@@ -1,33 +1,54 @@
-import React, {useEffect, useState} from 'react';
-import './App.css';
+import React, { useEffect, useState } from 'react';
 import Game from './components/Game'
-import socketIOClient from 'socket.io-client';
-const ENDPOINT = 'http://127.0.0.1:5000';
+import socket from './components/Socket'
+// CSS
+import './App.css';
+
 const uniqueString = require('unique-string');
 
 
 // import {} from 'styled-components/cssprop'
 
-const socket: SocketIOClient.Socket = socketIOClient(ENDPOINT);
+type RoomName = string
+
 function App() {
-	const [activeUsers, setActiveUsers] = useState<string>('0');
-  const roomNumber = uniqueString()
-	useEffect((): any => {
-		socket.on('serverEvent', (data: string) => {
-      console.log(data)
-		});
-		return socket.disconnect;
-	}, []);
+  // const [activeUsers, setActiveUsers] = useState<string>('0');
+  const [room, setRoom] = useState<RoomName>("");
+  const [value, setValue] = useState<RoomName>("");
+
+  const handleCreateGameClick = () => {
+    setRoom(uniqueString());
+  }
+  const handleJoinGameClick = () => {
+    setRoom(value)
+  }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setValue(e.target.value)
+    console.log(e.target.value)
+  }
+  useEffect((): any => {
+    return () => {
+      socket.disconnect()
+    };
+  }, [])
+  useEffect((): any => {
+    if (room !== "") {
+      socket.emit('join', room);
+    }
+  }, [room]);
   return (
     <div className="App">
-      <p>Room name: {roomNumber} (for testing name: 123) </p>
       <header className="App-header">
-      <button>Create Game</button>
-      <button>Join Game</button>
-        <p>
-          Testing Socket.io
-        </p>
-        <Game roomNumber={roomNumber}/>
+        <p>Room name: {room}</p>
+        <div style={{ display: "flexbox" }}>
+          <button onClick={handleCreateGameClick}>Create Game</button>
+          <button onClick={handleJoinGameClick}>Join Game</button>
+        </div>
+        <form>
+          <label>Enter Join Code</label><br></br>
+          <input type="text" onChange={handleChange} value={value} />
+        </form>
+        <Game />
       </header>
     </div>
   );

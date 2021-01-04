@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Wrapper } from './Board.styles';
 
 export type SquareValue = 'X' | 'O' | null;

@@ -16,6 +16,14 @@ const roomNumber = 1;
 const message = 'this is a test message'
 const object = { description: 'this is a test object' }
 
+class Room {
+  constructor(name, clientX, clientO) {
+		this.name=name
+		this.clientX=clientX
+		this.clientO=clientO
+  }
+}
+
 let clients = 0;
 io.on('connection', (socket) => {
 	socket.on('join', (room) => {

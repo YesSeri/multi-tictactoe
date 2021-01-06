@@ -1,5 +1,5 @@
 #!/bin/bash
-# A sample Bash script, by Henrik Zenkert
+# A Bash script, by Henrik Zenkert
 # Needs npm package concurrently installed globally
 
 BASEDIR=${PWD}

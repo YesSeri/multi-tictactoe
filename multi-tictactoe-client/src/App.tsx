@@ -9,22 +9,24 @@ const uniqueString = require('unique-string');
 
 // import {} from 'styled-components/cssprop'
 
-type RoomName = string
+type Room = {
+  name: string,
+  isX: boolean
+}
 
 function App() {
   // const [activeUsers, setActiveUsers] = useState<string>('0');
-  const [room, setRoom] = useState<RoomName>("");
-  const [value, setValue] = useState<RoomName>("");
+  const [room, setRoom] = useState<Room>({name: '', isX: false});
+  const [inputValue, setInputValue] = useState<string>("");
 
   const handleCreateGameClick = () => {
-    setRoom(uniqueString());
+    setRoom({name: uniqueString(), isX: true});
   }
   const handleJoinGameClick = () => {
-    setRoom(value)
+    setRoom({name: inputValue, isX: false})
   }
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setValue(e.target.value)
-    console.log(e.target.value)
+    setInputValue(e.target.value)
   }
   useEffect((): any => {
     return () => {
@@ -32,10 +34,10 @@ function App() {
     };
   }, [])
   useEffect((): any => {
-    if (room !== "") {
+    if (room.name !== "") {
       socket.emit('join', room);
     }
-  }, [room]);
+  }, [room.name]);
   return (
     <div className="App">
       <header className="App-header">
@@ -46,7 +48,7 @@ function App() {
         </div>
         <form>
           <label>Enter Join Code</label><br></br>
-          <input type="text" onChange={handleChange} value={value} />
+          <input type="text" onChange={handleChange} value={inputValue} />
         </form>
         <Game />
       </header>

@@ -7,18 +7,20 @@ import './App.css';
 const uniqueString = require('unique-string');
 
 
-// import {} from 'styled-components/cssprop'
-
 function App() {
   // const [activeUsers, setActiveUsers] = useState<string>('0');
   const [room, setRoom] = useState<string>("");
   const [inputValue, setInputValue] = useState<string>("");
 
   const handleCreateGameClick = () => {
-    setRoom(uniqueString());
+    const id = uniqueString();
+    setRoom(id);
+    socket.emit('create', id);
   }
   const handleJoinGameClick = () => {
-    socket.emit('join', room);
+    setRoom(inputValue);
+    console.log(inputValue)
+    socket.emit('join', inputValue);
   }
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setInputValue(e.target.value)
@@ -31,9 +33,6 @@ function App() {
       socket.disconnect()
     };
   }, [])
-  useEffect((): any => {
-    socket.emit('create', room);
-  }, [room]);
   return (
     <div className="App">
       <header className="App-header">
@@ -44,7 +43,7 @@ function App() {
         </div>
         <form>
           <label>Enter Join Code</label><br></br>
-          <input type="text" onChange={handleChange} value={inputValue} />
+          <input type="text" onSubmit={e => { e.preventDefault(); }} onChange={handleChange} value={inputValue} />
         </form>
         <Game />
       </header>

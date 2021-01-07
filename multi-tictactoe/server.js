@@ -21,6 +21,11 @@ class Room {
   isFull() {
     return (this.clientX && this.clientO)
   }
+  toString() {
+    return [
+      this.name, this.clientX!==false, this.clientO !== false, this.logic
+    ]
+  }
 }
 
 class GameLogic {
@@ -34,8 +39,6 @@ let rooms = [];
 let y = 0;
 
 io.on('connection', (socket) => {
-  // console.log('All current rooms: ', rooms)
-
   socket.on('create', (roomName) => { // If not we create a new room that someone else can join
     console.log('Creating room', roomName)
     socket.join(roomName);
@@ -45,6 +48,7 @@ io.on('connection', (socket) => {
     emitConsole(`Test Message sent ${y} time`, roomName)
   })
   socket.on('join', (roomName) => { // Has only a name.
+    console.log(roomName)
     let tempRoom;
     for (room of rooms) {
       if (room.name === roomName) { // If the room already exists we join it. Else we create it.
@@ -55,12 +59,12 @@ io.on('connection', (socket) => {
     if (tempRoom.isFull()) {
       emitConsole("Room is full already, cant join", roomName)
     } else {
-      emitConsole('Joining room: ' + tempRoom.name, roomName)
+      emitConsole(`Lets start game. Joining room: ${tempRoom.name}`, roomName)
       tempRoom.clientO = socket;
       socket.join(roomName);
-      if (tempRoom.isFull()) {
-      }
     }
+    console.log(tempRoom.toString())
+    emitConsole(tempRoom.toString(), tempRoom.name)
 
     y++;
     emitConsole(`Test Message sent ${y} time`, roomName)

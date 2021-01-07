@@ -9,35 +9,31 @@ const uniqueString = require('unique-string');
 
 // import {} from 'styled-components/cssprop'
 
-type Room = {
-  name: string,
-  isX: boolean
-}
-
 function App() {
   // const [activeUsers, setActiveUsers] = useState<string>('0');
-  const [room, setRoom] = useState<Room>({name: '', isX: false});
+  const [room, setRoom] = useState<string>("");
   const [inputValue, setInputValue] = useState<string>("");
 
   const handleCreateGameClick = () => {
-    setRoom({name: uniqueString(), isX: true});
+    setRoom(uniqueString());
   }
   const handleJoinGameClick = () => {
-    setRoom({name: inputValue, isX: false})
+    socket.emit('join', room);
   }
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setInputValue(e.target.value)
   }
   useEffect((): any => {
+    socket.on('console', (data: string) => {
+      console.log(data)
+    })
     return () => {
       socket.disconnect()
     };
   }, [])
   useEffect((): any => {
-    if (room.name !== "") {
-      socket.emit('join', room);
-    }
-  }, [room.name]);
+    socket.emit('create', room);
+  }, [room]);
   return (
     <div className="App">
       <header className="App-header">

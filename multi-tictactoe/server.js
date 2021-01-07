@@ -1,7 +1,7 @@
 const app = require('express')();
 const httpServer = require('http').createServer(app);
 options = {
-	cors: true,
+  cors: true,
 };
 const io = require('socket.io')(httpServer, options);
 
@@ -14,48 +14,63 @@ const PORT = process.env.PORT | 5000;
 class Room {
   constructor(name, clientX, clientO) {
     this.name = name;
-    this.clientX = clientX;
-    this.clientO = clientO;
+    this.clientX = clientX; //socket 
+    this.clientO = clientO; //socket
+    this.logic = new GameLogic
   }
-  isRoomFull(){
-    return (this.clientX && this.clientO) 
+  isFull() {
+    return (this.clientX && this.clientO)
   }
 }
 
+class GameLogic {
+  constructor() {
+    this.squares = Array(9).fill(null);
+    this.xTurn = true;
+  }
+
+}
 let rooms = [];
+let y = 0;
 
 io.on('connection', (socket) => {
-  console.log('All current rooms: ', rooms)
-	socket.on('join', (clientRoom) => { // Will have three fields. One is room.name. The other is room.join and is a boolean. If true join room else create room. Last one is isX. Is only used when creating room, for making player able to choose char.
-    if (room.join){ // If room exists we join that room. 
-      let tempRoom;
-      console.log('Joining room', room.name) //Need to find room and add user to it.
-      for (room in rooms) {
-        if ( clientRoom.name === room.name ) { 
-          tempRoom = {...clientRoom}
-          console.log(tempRoom)
-        }
+  // console.log('All current rooms: ', rooms)
+
+  socket.on('create', (roomName) => { // If not we create a new room that someone else can join
+    console.log('Creating room', roomName)
+    socket.join(roomName);
+    const newRoom = new Room(roomName, socket, false)
+    rooms.push(newRoom);
+    y++;
+    emitConsole(`Test Message sent ${y} time`, roomName)
+  })
+  socket.on('join', (roomName) => { // Has only a name.
+    let tempRoom;
+    for (room of rooms) {
+      if (room.name === roomName) { // If the room already exists we join it. Else we create it.
+        tempRoom = room;
+        break;
       }
-    } else { // If not we create a new room that someone else can join
-      console.log('Creating room', clientRoom.name)
-      const tempClientRoom = new Room(clientRoom.name, clientRoom.isX, !clientRoom.isX)
-      rooms.push(tempClientRoom);
     }
-    
-		socket.join(room);
-		console.log('room: ', room)
+    if (tempRoom.isFull()) {
+      emitConsole("Room is full already, cant join", roomName)
+    } else {
+      emitConsole('Joining room: ' + tempRoom.name, roomName)
+      tempRoom.clientO = socket;
+      socket.join(roomName);
+      if (tempRoom.isFull()) {
+      }
+    }
+
+    y++;
+    emitConsole(`Test Message sent ${y} time`, roomName)
   });
 });
 
-function roomExists(newRoomName) { // Rooms is global
-  for (let room of rooms) {
-    if (room.name === newRoomName) {
-      return false;
-    }
-  }
-  return true;
+function emitConsole(text, roomName) {
+  console.log(text)
+  io.to(roomName).emit('console', text);
 }
-
 httpServer.listen(PORT, () => {
-	console.log(`Listening on port: ${PORT}`);
+  console.log(`Listening on port: ${PORT}`);
 });

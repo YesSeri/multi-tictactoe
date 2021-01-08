@@ -23,13 +23,9 @@ type BoardsProps = {
 
 const Board: React.FC<BoardsProps> = ({ squares, handleClick }: BoardsProps) => {
 
-	const renderSquare = (i: number) => {
-		return <Square onClick={() => handleClick(i)} value={squares[i]} key={i} />;
-	};
-
 	return (
 		<Wrapper className="wrapper">
-			{squares.map((_, i) => renderSquare(i))}
+			{squares.map((_, i) => <Square onClick={() => handleClick(i)} value={squares[i]} key={i} />)}
 		</Wrapper>
 	);
 };

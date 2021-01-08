@@ -4,29 +4,44 @@ import socket from './components/Socket'
 // CSS
 import './App.css';
 
+// Typescript types
+import { Player } from './components/Game'
+
 const uniqueString = require('unique-string');
 
-
 function App() {
-  // const [activeUsers, setActiveUsers] = useState<string>('0');
-  const [room, setRoom] = useState<string>("");
+  const [displayRoom, setDisplayRoom] = useState<string>("");
   const [inputValue, setInputValue] = useState<string>("");
+  const [gameStarted, setGameStarted] = useState<boolean>(false);
+  const [waitText, setWaitText] = useState<string>('Join or create a game');
+  const [myChar, setMyChar] = useState<Player>(Player.None); //I have set this to the letter A.
 
   const handleCreateGameClick = () => {
     const id = uniqueString();
-    setRoom(id);
-    socket.emit('create', id);
+    charDisplayEmit(Player.X, id, "create")
+    setWaitText("Game created, waiting for 2nd player to join")
   }
+
   const handleJoinGameClick = () => {
-    setRoom(inputValue);
-    console.log(inputValue)
-    socket.emit('join', inputValue);
+    charDisplayEmit(Player.O, inputValue, 'join')
   }
+
+  const charDisplayEmit = (player: Player, id: string, action: string) => {
+    setMyChar(Player.X)
+    setDisplayRoom(id);
+    socket.emit(action, inputValue);
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setInputValue(e.target.value)
   }
+
   useEffect((): any => {
-    socket.on('console', (data: string) => {
+    socket.on('console', (data: any) => {
+      console.log(data)
+    })
+    socket.on('startGame', (data: any) => { // When two players have joined this get emitted from the server.
+      setGameStarted(true)
       console.log(data)
     })
     return () => {
@@ -36,7 +51,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <p>Room name: {room}</p>
+        <p>Room name: {displayRoom}</p>
         <div style={{ display: "flexbox" }}>
           <button onClick={handleCreateGameClick}>Create Game</button>
           <button onClick={handleJoinGameClick}>Join Game</button>
@@ -45,7 +60,7 @@ function App() {
           <label>Enter Join Code</label><br></br>
           <input type="text" onSubmit={e => { e.preventDefault(); }} onChange={handleChange} value={inputValue} />
         </form>
-        <Game />
+        {gameStarted ? <Game myChar={myChar} socket={socket}/> : waitText }
       </header>
     </div>
   );

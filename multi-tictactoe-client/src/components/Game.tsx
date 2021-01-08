@@ -3,13 +3,18 @@ import Board from './Board';
 import { SquareValue } from './Board';
 import { testWinner, testDraw } from './utils';
 
-enum Player {
+export enum Player {
 	X = 'X',
 	O = 'O',
+	None = 'A'
 }
 
-const Game: React.FC = () => {
-	const [squares, setSquares] = useState<Array<SquareValue>>(
+type GameProps = {
+	myChar: Player;
+	socket: SocketIOClient.Socket;
+}
+const Game: React.FC<GameProps> = ({ myChar, socket }) => {
+	const [squares, setSquares] = useState<Array<SquareValue>>( // This is the latest move that has been made. 
 		Array(9).fill(null)
 	);
 
@@ -21,7 +26,7 @@ const Game: React.FC = () => {
 	const status = winner ? `Winner: ${winner}` : isDraw ? `It is a draw.` : `Next player: ${nextPlayer}`;
 
 	const handleClick = (i: number) => {
-		if (winner || squares[i] || isDraw) return;
+		if (winner || squares[i] || isDraw || nextPlayer !== myChar) return;
 		setTurn(turn + 1);
 		const newSquares = squares.slice();
 		newSquares[i] = nextPlayer;

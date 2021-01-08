@@ -22,8 +22,10 @@ class Room {
     return (this.clientX && this.clientO)
   }
   toString() {
+    const string = `Name: ${this.name}, clientX: ${this.clientX !== false}, clientO: ${this.clientO !== false} `
     return [
-      this.name, this.clientX !== false, this.clientO !== false, this.logic
+      string,
+      this.logic.toString()
     ]
   }
 }
@@ -32,6 +34,18 @@ class GameLogic {
   constructor() {
     this.squares = Array(9).fill(null);
     this.xTurn = true;
+  }
+  toString() {
+    const squares = this.squares
+    let string = `\nPlaying Field
+      ${squares[0] ? squares[0] : "-"} ${squares[1] ? squares[1] : "-"} ${squares[2] ? squares[2] : "-"}
+      ${squares[3] ? squares[3] : "-"} ${squares[4] ? squares[4] : "-"} ${squares[5] ? squares[5] : "-"}
+      ${squares[6] ? squares[6] : "-"} ${squares[7] ? squares[7] : "-"} ${squares[8] ? squares[8] : "-"}
+    `
+    return [
+      string,
+      `\nIt is X turn: ${this.xTurn}`
+    ]
   }
 
 }
@@ -52,13 +66,12 @@ io.on('connection', (socket) => {
 
   socket.on('join', (roomName) => { // Has only a name.
     let room;
-    for (possibleRoom of rooms) {
-      if (possibleRoom.name === roomName) { // If the room already exists we join it. Else we create it.
-        room = possibleRoom;
+    for (tempRoom of rooms) {
+      if (tempRoom.name === roomName) { // If the room already exists we join it. Else we create it.
+        room = tempRoom;
         break;
       }
     }
-    debugger;
     if (room && !room.isFull()) {
       joinRoom(room)
     } else {
@@ -72,13 +85,18 @@ io.on('connection', (socket) => {
       emitConsole(`ClientO already taken in: `, room.name)
     }
     socket.join(room.name);
-    startGame(room);
+    if (room.isFull()) { // If room is not full something has gone wrong, for example a player leaving. This needs to be handled. Take care of this later
+      startGame(room);
+    }
   }
 });
 
 const startGame = (room) => {
-  emitConsole(`Starting game in: ${room.toString()}`, room.name)
+  emitConsole(`Game starting.\n Game info: ${room.toString()}`, room.name)
   io.to(room.name).emit('startGame', "LETS START GAME");
+  socket.on('', (roomName) => { // Has only a name.
+    
+  })
 }
 
 function emitConsole(text, roomName) {

@@ -1,4 +1,4 @@
-import { SquareValue } from './Board'
+import { SquareValue } from './Board';
 const testWinner = (squares: Array<SquareValue>) => {
 	const lines: Array<Array<number>> = [
 		[0, 1, 2],
@@ -19,9 +19,18 @@ const testWinner = (squares: Array<SquareValue>) => {
 	return null;
 };
 
-
 const testDraw = (turn: number): boolean => {
-	return turn === 10
-}
+	return turn === 10;
+};
+const isArrayEmpty = (arr: Array<SquareValue>) => {
+	let isEmpty = true;
+	for (const elem of arr) {
+		if (elem !== null) {
+			isEmpty = false;
+			break;
+		}
+	}
+	return isArrayEmpty
+};
 
-export {testWinner, testDraw}
+export {testWinner, testDraw, isArrayEmpty}
